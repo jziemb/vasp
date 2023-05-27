@@ -1,3 +1,5 @@
+import numpy as np
+
 def read_WAVEDER(file='WAVEDER'):
         '''Read the WAVEDER file
 
