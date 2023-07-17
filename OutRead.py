@@ -72,3 +72,77 @@ def calcP(nb1_start,nb1_end,nb2_start,nb2_end):
                         P0y=P0y+(abs(km[1,0,0,nb,nb2])*(BS[0,nb]-BS[0,nb2]))**2
                         P0z=P0z+(abs(km[2,0,0,nb,nb2])*(BS[0,nb]-BS[0,nb2]))**2
         return(P0x**0.5,P0y**0.5,P0z**0.5)
+
+def read_POSCAR(fileName='POSCAR'):
+        with open(fileName,'r') as file:
+                lines = [line.rstrip() for line in file]
+        acell=float(lines[1])
+        a1=np.array([float(line) for line in lines[2].split()])
+        a2=np.array([float(line) for line in lines[3].split()])
+        a3=np.array([float(line) for line in lines[4].split()])
+        natom=int(np.array([float(line) for line in lines[6].split()]).sum())
+        coords=np.zeros((natom,3))
+        for atom in range(natom):
+                coords[atom]=np.array([float(line) for line in lines[8+atom].split()])
+        return acell*a1, acell*a2, acell*a3, coords
+
+def read_PROCAR(file='PROCAR',SO=False):
+    f = open(file)
+    txt = f.read()
+    txt=txt+'!!!'
+    f.close()
+    it = 0
+    for header in range(2):
+        it = readnum(txt, it)[1]
+    nk, it = readnum(txt, it)
+    nb, it = readnum(txt, it)
+    nion, it = readnum(txt, it)
+    nk, nb, nion = int(nk), int(nb), int(nion)
+    BS = np.zeros((nk, nb))
+    KP = np.zeros((nk, 3))
+    FB = np.zeros((nk, nb, nion, 10))
+    for k in range(nk):
+        it = readnum(txt, it)[1]
+        kp, it = readnum(txt, it)
+        KP[k, 0] = kp
+        kp, it = readnum(txt, it)
+        KP[k, 1] = kp
+        kp, it = readnum(txt, it)
+        KP[k, 2] = kp
+        it = readnum(txt, it)[1]
+        for band in range(nb):
+            it = readnum(txt, it)[1]
+            BS[k, band], it = readnum(txt, it)
+            it = readnum(txt, it)[1]
+
+            #read weigths
+            fb = []
+            it = readnum(txt, it)[1]
+            it = readnum(txt, it)[1]
+            for ions in range(nion):
+                it = readnum(txt, it)[1]
+                for i in range(10):
+                    fband, it = readnum(txt, it)
+                    FB[k, band, ions, i] = fband
+            for i in range(10):
+                it = readnum(txt, it)[1]
+            #if SO skip magnetization
+            if SO:
+                for ii in range(3):
+                    for ions in range(nion):
+                        it = readnum(txt, it)[1]
+                        for i in range(10):
+                            it = readnum(txt, it)[1]
+                    for i in range(10):
+                        it = readnum(txt, it)[1]
+
+#skip phases
+            it = readnum(txt, it)[1]
+            it = readnum(txt, it)[1]
+            for ions in range(nion):
+                for i in range(20):
+                    it = readnum(txt, it)[1]
+            for i in range(10):
+                it = readnum(txt, it)[1]
+    return KP, BS, FB
+
