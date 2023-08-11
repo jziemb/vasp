@@ -26,36 +26,23 @@ def readnum(txt,i):
                 i=i+1
         return float(a),i
 
-def read_EIGENVAL(file='EIGENVAL'):
-        f = open(file)
-        txt = f.read()
-        it = 0
-        for header in range(11):
-                it = readnum(txt, it)[1]
-        nk, it = readnum(txt, it)
-        nb, it = readnum(txt, it)
-        nk, nb = int(nk), int(nb)
-        BS = []
-        KP = []
-        for k in range(nk):
-                kpoint = []
-                kp, it = readnum(txt, it)
-                kpoint.append(kp)
-                kp, it = readnum(txt, it)
-                kpoint.append(kp)
-                kp, it = readnum(txt, it)
-                kpoint.append(kp)
-                it = readnum(txt, it)[1]
-                bands = []
-                for band in range(nb):
-                        it = readnum(txt, it)[1]
-                        band, it = readnum(txt, it)
-                        it = readnum(txt, it)[1]
-                        bands.append(band)
-                BS.append(bands)
-                KP.append(kpoint)
-                f.close()
-        return np.array(KP), np.array(BS)
+def read_EIGENVAL(fileName='EIGENVAL'):
+        with open(fileName,'r') as file:
+                lines = [line.rstrip() for line in file]
+        tmp=np.array([float(line) for line in lines[5].split()])
+        nk, nb = int(tmp[1]), int(tmp[2])
+        rowLen = np.array([float(line) for line in lines[8].split()]).shape[0]
+        if rowLen==3:
+                BS = np.zeros((nk,nb))
+                KP = np.zeros((nk,3))
+                for k in range(nk):
+                        for b in range(nb):
+                                BS[k, b] = np.array([float(line) for line in lines[5 + 2 * (k + 1) + k * nb + (b + 1)].split()])[1]
+                        KP[k, :] = np.array([float(line) for line in lines[5 + 2 * (k + 1) + (k + 1) * nb].split()])[0:3]
+        else:
+                print('Strange rowLen')
+
+        return KP,BS
 
 def calcP(nb1_start,nb1_end,nb2_start,nb2_end,km,BS):
         P0x=0.
