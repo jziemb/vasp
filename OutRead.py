@@ -153,3 +153,10 @@ def read_DOSCAR(fileName='DOSCAR'):
                 PDOS[:, 0] = PDOS[:, 0] - Efermi
                 return DOS,PDOS
         return DOS
+
+def findString(txt,string,last=True):
+        i=txt.count(string)
+        txt=txt.replace(string,'',i-1)
+        i=txt.find(string)
+        a=readnum(txt,i+len(string))
+        return a
