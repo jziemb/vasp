@@ -154,9 +154,12 @@ def read_DOSCAR(fileName='DOSCAR'):
                 return DOS,PDOS
         return DOS
 
-def findString(txt,string,last=True):
-        i=txt.count(string)
-        txt=txt.replace(string,'',i-1)
+def findString(txt,string,last=True,skipNum = 0):
+        if last:
+                i=txt.count(string)
+                txt=txt.replace(string,'',i-1)
         i=txt.find(string)
-        a=readnum(txt,i+len(string))
+        i = i + len(string)
+        for it in range(skipNum+1):
+                a,i=readnum(txt,i)
         return a
