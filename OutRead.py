@@ -34,15 +34,17 @@ def read_EIGENVAL(fileName='EIGENVAL'):
         rowLen = np.array([float(line) for line in lines[8].split()]).shape[0]
         if rowLen==3:
                 BS = np.zeros((nk,nb))
-                KP = np.zeros((nk,3))
+                OC = np.zeros((nk, nb))
+                KP = np.zeros((nk,4))
                 for k in range(nk):
                         for b in range(nb):
                                 BS[k, b] = np.array([float(line) for line in lines[5 + 2 * (k + 1) + k * nb + (b + 1)].split()])[1]
-                        KP[k, :] = np.array([float(line) for line in lines[5 + 2 * (k + 1) + (k + 1) * nb].split()])[0:3]
+                                OC[k, b] = np.array([float(line) for line in lines[5 + 2 * (k + 1) + k * nb + (b + 1)].split()])[2]
+                        KP[k, :] = np.array([float(line) for line in lines[5 + 2 * (k + 1) + k * nb].split()])[0:4]
         else:
                 print('Strange rowLen')
 
-        return KP,BS
+        return KP,BS,OC
 
 def calcP(nb1_start,nb1_end,nb2_start,nb2_end,km,BS):
         P0x=0.
