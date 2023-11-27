@@ -134,7 +134,6 @@ def read_PROCAR(file='PROCAR',SO=False):
                         for i in range(10):
                                 it = readnum(txt, it)[1]
         return KP, BS, FB
-
 def read_DOSCAR(fileName='DOSCAR'):
         with open(fileName,'r') as file:
                 lines = [line.rstrip() for line in file]
@@ -165,3 +164,19 @@ def findString(txt,string,last=True,skipNum = 0):
         for it in range(skipNum+1):
                 a,i=readnum(txt,i)
         return a
+
+def read_LOCPOT(fileName='LOCPOT'):
+        with open(fileName,'r') as file:
+                lines = [line.rstrip() for line in file]
+        Natom = np.array([float(line) for line in lines[6].split()]).sum()
+        Natom = int(Natom)
+        Nx,Ny,Nz = np.array([float(line) for line in lines[Natom+9].split()])
+        Nx,Ny,Nz = int(Nx),int(Ny),int(Nz)
+        POT=np.zeros(Nx*Ny*Nz)
+        for i in range(len(lines)-Natom-9-1):
+                POT[i*5:i*5+5]=np.array([float(line) for line in lines[i+Natom+10].split()])
+        tmp=np.array([float(line) for line in lines[i+1].split()]).shape[0]
+        j=Nx*Ny*Nz-tmp
+        POT[j:] = np.array([float(line) for line in lines[i+1].split()])
+        POT=POT.reshape((Nz,Ny,Nx))
+        return POT
