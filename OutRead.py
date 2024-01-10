@@ -152,6 +152,11 @@ def read_DOSCAR(fileName='DOSCAR'):
                         for i in range(Np):
                                 PDOS[i, :, atom] = np.array([float(line) for line in lines[6 + (Np+1)*(atom+1) + i].split()])
                 PDOS[:, 0] = PDOS[:, 0] - Efermi
+                #renorm
+                if DOS.shape[1]==3:
+                    PDOS[:,1:,:]=np.nan_to_num(PDOS[:,1:,:]/PDOS[:,1:,:].sum(axis=(1,2))[:,np.newaxis,np.newaxis])*DOS[:,1,np.newaxis,np.newaxis]
+                else:
+                    print('TO DO:renorm for ispin')
                 return DOS,PDOS
         return DOS
 
