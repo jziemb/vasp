@@ -17,14 +17,32 @@ def read_WAVEDER(file='WAVEDER'):
 
         return cder, nodesn_i_dielectric_function, wplasmon
 
-def readnum(txt,i):
+'''def readnum(txt,i):
         a=''
         while txt[i].isdigit()==False and txt[i] not in ['-']:
                 i=i+1
         while txt[i].isdigit()==True or txt[i] in ['-','+','e','E','.']:
                 a=a+txt[i]
                 i=i+1
-        return float(a),i
+        return float(a),i'''
+
+def readnum(txt, i):
+        a = ''
+        while txt[i].isdigit() == False and txt[i] != '-':
+                i = i + 1
+        while txt[i].isdigit() == True or txt[i] in ('-', '+', '.', 'E'):
+                a = a + txt[i]
+                i = i + 1
+    #if a[len(a)//2]=='-' and len(a)>2: #w kpoint jest 0.00-0.00 (brak separatora), >2 bo jest x2-y2
+    #    a=a[:len(a)//2]
+    #    i=i-len(a)//2+1
+        try:
+                a = float(a)
+        except:
+                a, i = readnum(txt, i)
+        else:
+                a = float(a)
+        return a, i
 
 def read_EIGENVAL(fileName='EIGENVAL'):
         with open(fileName,'r') as file:
